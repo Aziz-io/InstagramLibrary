@@ -1,0 +1,94 @@
+plugins {
+    id 'com.android.library'
+}
+
+android {
+    namespace 'com.example.insta_library'
+    compileSdk 33
+
+    defaultConfig {
+        minSdk 24
+        targetSdk 33
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.8.0'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+
+
+    // OkHttp
+    implementation 'com.squareup.okhttp3:okhttp:4.7.2'
+    implementation 'com.squareup.okhttp3:okhttp-urlconnection:4.7.2'
+    // jackson data-bind
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.0'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.12.0'
+    implementation 'org.slf4j:slf4j-api:1.7.30'
+
+
+    compileOnly 'org.projectlombok:lombok:1.18.26'
+    annotationProcessor 'org.projectlombok:lombok:1.18.26'
+
+    //Encryptionn
+    implementation 'androidx.security:security-crypto:1.0.0'
+    implementation "androidx.security:security-crypto:1.1.0-alpha03"
+    implementation "androidx.security:security-identity-credential:1.0.0-alpha03"
+
+}
+
+afterEvaluate{
+    android.libraryVariants.each{ variants ->
+        publishing.publications.create(variants.name, MavenPublication){
+            from components.findByName(variants.name)
+
+//            artifacts androidJavadocsJar
+//            artifacts androidSourcesJar
+
+            groupId 'com.insta.test'
+            artifactId ="Instatest"
+            version '1.0.0'
+        }
+    }
+}
+
+task androidJavadocsJar(type: Javadoc){
+    source = android.sourceSets.main.java.srcDirs
+
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    android.libraryVariants.all{ variant ->
+        owner.classpath +=variant.javaCompileProvider.get().classpath
+    }
+
+
+    options{
+        memberLevel = JavadocMemberLevel.PROTECTED
+    }
+}
+
+//task androidJavadocsJar(type:Jar, dependsOn:androidjavadocs){
+//    archiveClassifier.set('javadoc')
+//    from androidjavadocs.destinationDir
+//}
+//
+//task androidSourcesJar(type: Jar){
+//    archiveClassifier.set('sources')
+//    from android.sourceSets.main.javasrcDirs
+//}
